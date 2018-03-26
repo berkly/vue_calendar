@@ -1,16 +1,12 @@
 <template>
     <div class="day-cell"
          :class="{'today' : day.isToday, 'current-month' : day.isCurrentMonth, 'weekend': day.isWeekEnd, 'selected-day':isDaySelected}"
-        @click="showDayOptions">
+    @click="showDayOptions">
         <div class="row">
             <div class="col-sm-6">
-                <div v-show="isDaySelected">
-                    <!--<span class="label label-success" @click="showAddEventForm"> {{ $t('generic.add_event') }}</span>-->
-                    <button type="button" class="btn" @click="showModal">Open Modal!</button>
-                    <modal
-                        v-show="isModalVisible"
-                        @close="closeModal"
-                    />
+                <div v-show="isDaySelected" v-if="canAddEvent">
+                    <span class="badge badge-success" @click="showAddEventForm" v-if="$i18n"> {{ $t('generic.add_event') }}</span>
+                    <span class="badge badge-success" @click="showAddEventForm" v-else>Add Event</span>
                 </div>
             </div>
             <div class="col-sm-6">
@@ -18,31 +14,29 @@
             </div>
         </div>
         <div class="event-box">
-            <event-card
+            <EventCard
+                    v-for="event in day.events"
                     :event="event"
                     :key="event.id"
                     :day-date="day.date"
                     :is-day-selected="isDaySelected"
-                    v-for="event in day.events">
-            </event-card>
+                    :canDeleteEvent="canDeleteEvent"
+                    @eventDeleted="eventDeleted">
+            </EventCard>
         </div>
+        <EventModal :show.sync="showAddEvent" :day="day" @eventAdded="eventAdded"></EventModal>
     </div>
 </template>
 <script>
     import moment from 'moment';
-    import {DAY_SELECTED, CHANGE_MONTH} from '../actions';
-    import modal from './modal.vue';
+    import {DAY_SELECTED, CHANGE_MONTH, EVENT_ADDED, EVENT_DELETED} from '../actions';
+
     export default {
-        data () {
-            return {
-                isDaySelected: false,
-                isModalVisible: false
-            }
-        },
         components: {
-            'EventCard' : require('./EventCard.vue').default?require('./EventCard.vue').default:require('./EventCard.vue'),
-            modal,
+            'EventCard' : require('./EventCard.vue').default ? require('./EventCard.vue').default : require('./EventCard.vue'),
+            'EventModal': require('./EventModal.vue').default ? require('./EventModal.vue').default : require('./EventModal.vue'),
         },
+
         props:{
             day: {
                 type: Object
@@ -50,7 +44,21 @@
             firstDay: {
                 type: String
             },
+            canAddEvent: {
+                type: Boolean,
+            },
+            canDeleteEvent: {
+                type: Boolean,
+            },
         },
+
+        data () {
+            return {
+                isDaySelected: false,
+                showAddEvent: false,
+            }
+        },
+
         created(){
             let me = this;
             this.$root.$on(DAY_SELECTED, function (payload) {
@@ -63,6 +71,7 @@
                 me.isDaySelected = false;
             });
         },
+
         methods : {
             showDayOptions(){
                 let me = this;
@@ -72,15 +81,17 @@
                     this.$root.$emit(DAY_SELECTED, {dayDate:me.day.date});
                 }
             },
+
             showAddEventForm(){
-                // TODO: Implement add event form
-                //alert('Can you help implementing this?');  
+                this.showAddEvent = true;
             },
-            showModal() {
-                this.isModalVisible = true;
+            
+            eventAdded(event) {
+                this.$emit(EVENT_ADDED, event);
             },
-            closeModal() {
-                this.isModalVisible = false;
+            
+            eventDeleted(event) {
+                this.$emit(EVENT_DELETED, event);
             }
         }
     }
@@ -99,24 +110,23 @@
         text-align: right;
         color: rgba(0, 0, 0, .25);
         font-size: 1em;
-        padding: 5px;
     }
 
     .current-month {
         background: #fff;
     }
 
-    .current-month p {
+    .current-month .day-number {
         color: rgba(0, 0, 0, .5);
         font-size: 1.5em;
     }
 
-    .selected-day p {
-        font-size: 2.4em;
-        font-weight: bolder;
+    .selected-day .day-number {
+        font-size: 2em;
+        font-weight: bold;
     }
 
-    .weekend p {
+    .weekend .day-number {
         color: rgba(210, 2, 2, 0.6);
     }
 
@@ -124,9 +134,9 @@
         background-color: #e8fde7;
     }
 
-    .today p {
+    .today .day-number {
         font-size: 2em;
-        font-weight: bolder;
+        font-weight: bold;
         color: #367016;
     }
 </style>

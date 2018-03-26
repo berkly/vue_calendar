@@ -1,42 +1,73 @@
 <template>
     <div class="week-row" @click="showWeekNumber">
-        <div class="week-number" v-if="showWeekNumberFlag">{{ $t('generic.week')}} {{week[0].date.format('w')}}</div>
-        <day v-for="(day, index) in week"
+        <div class="week-number" v-if="showWeekNumberFlag && $i18n">{{ $t('generic.week')}} {{week[0].date.format('w')}}</div>
+        <div class="week-number" v-else-if="showWeekNumberFlag">Week {{week[0].date.format('w')}}</div>
+        <Day v-for="(day, index) in week"
              :day="day"
-             :key="index"
-        ></day>
+             :key="day.date + index"
+             :canAddEvent="canAddEvent"
+             :canDeleteEvent="canDeleteEvent"
+             @eventAdded="eventAdded"
+             @eventDeleted="eventDeleted"
+        ></Day>
     </div>
 </template>
 <script>
-    import {WEEK_SELECTED} from '../actions';
+    import {WEEK_SELECTED, EVENT_ADDED, EVENT_DELETED} from '../actions';
 
     export default {
+        components: {
+            'Day': require('./Day.vue').default ? require('./Day.vue').default : require('./Day.vue'),
+        },
+
+        props:{
+            week: {
+                type: Array
+            },
+
+            displayWeekNumber: {
+                type: Boolean,
+                default: true,
+            },
+
+            canAddEvent: {
+                type: Boolean,
+            },
+            
+            canDeleteEvent: {
+                type: Boolean,
+            },
+        },
+
         data () {
             return {
                 showWeekNumberFlag: false,
             }
         },
-        components: {
-            'Day': require('./Day.vue').default?require('./Day.vue').default:require('./Day.vue'),
-        },
-        props:{
-            week: {
-                type: Array
-            },
-        },
+
         created(){
             let me = this;
             this.$root.$on(WEEK_SELECTED, function (payload) {
                 if(payload.weekDate != me.week[0].date) {
                     me.showWeekNumberFlag = false;
                 }
-            })
+            });
         },
+
         methods : {
             showWeekNumber() {
-                let me = this;
-                me.showWeekNumberFlag = true;
-                this.$root.$emit(WEEK_SELECTED, {weekDate:me.week[0].date});
+                if(this.displayWeekNumber) {
+                    this.showWeekNumberFlag = true;
+                }
+                this.$root.$emit(WEEK_SELECTED, {weekDate:this.week[0].date});
+            },
+            
+            eventAdded(event) {
+                this.$emit(EVENT_ADDED, event);
+            },
+            
+            eventDeleted(event) {
+                this.$emit(EVENT_DELETED, event);
             }
         }
     }
