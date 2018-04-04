@@ -5,14 +5,15 @@
                 <div class="modal-dialog" ref="dialog">
                     <div class="modal-content">
                       
-                        <div class="modal-header">
-                            <button type="button" class="close" aria-label="Close" @click="cancel">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                        <div class="modal-header">  
                             <h4 class="modal-title">
                                 <span v-if="$i18n">{{ $t('generic.add_event') }}</span>
                                 <span v-else>Add Event</span>
                             </h4>
+
+                            <button type="button" class="close" aria-label="Close" @click="cancel">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
 
                         <div class="modal-body">

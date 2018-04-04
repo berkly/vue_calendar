@@ -1,4 +1,5 @@
 <template>
+<div class="">
     <div class="row">
         <div v-if="loading && $i18n">{{ $t('generic.loading')}}...</div>
         <div v-else-if="loading">Loading ...</div>
@@ -43,6 +44,7 @@
             </div>
         </div>
     </div>
+</div>
 </template>
 <script>
     import moment from 'moment';

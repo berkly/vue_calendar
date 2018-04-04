@@ -11,6 +11,7 @@
                 @eventDeleted="eventDeleted"
         ></calendar>
     </div>
+    
 </template>
 
 <script>
@@ -83,3 +84,6 @@
         }
     }
 </script>
+<style>
+    
+</style>

@@ -29,12 +29,14 @@
 </template>
 <script>
     import moment from 'moment';
+    import draggable from 'vuedraggable';
     import {DAY_SELECTED, CHANGE_MONTH, EVENT_ADDED, EVENT_DELETED} from '../actions';
 
     export default {
         components: {
             'EventCard' : require('./EventCard.vue').default ? require('./EventCard.vue').default : require('./EventCard.vue'),
             'EventModal': require('./EventModal.vue').default ? require('./EventModal.vue').default : require('./EventModal.vue'),
+            draggable,
         },
 
         props:{
